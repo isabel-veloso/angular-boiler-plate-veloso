@@ -1,4 +1,5 @@
-import { catchError } from 'rxjs';
+import { of } from 'rxjs'; // Add this line
+import { catchError } from 'rxjs/operators'; // Operators usually come from rxjs/operators
 
 import { AccountService } from '@app/_services';
 
