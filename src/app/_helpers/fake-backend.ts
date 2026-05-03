@@ -7,7 +7,7 @@ import { AlertService } from '@app/_services';
 import { Role } from '@app/_models';
 
 // array in local storage for accounts
-const accountsKey = 'angular-15-signup-verification-boilerplate-accounts';
+const accountsKey = 'angular-21-signup-verification-boilerplate-accounts';
 let accounts: any[] = JSON.parse(localStorage.getItem(accountsKey)!) || [];
 
 @Injectable()
@@ -55,7 +55,6 @@ export class FakeBackendInterceptor implements HttpInterceptor {
         }
 
         // route functions
-
         function authenticate() {
             const { email, password } = body;
             const account = accounts.find(x => x.email === email && x.password === password && x.isVerified);
@@ -195,8 +194,8 @@ export class FakeBackendInterceptor implements HttpInterceptor {
 
         function validateResetToken() {
             const { token } = body;
-            const account = accounts.find(x =>
-                !!x.resetToken && x.resetToken === token &&
+            const account = accounts.find(x => 
+                !!x.resetToken && x.resetToken === token && 
                 new Date() < new Date(x.resetTokenExpires)
             );
 
@@ -207,8 +206,8 @@ export class FakeBackendInterceptor implements HttpInterceptor {
 
         function resetPassword() {
             const { token, password } = body;
-            const account = accounts.find(x =>
-                !!x.resetToken && x.resetToken === token &&
+            const account = accounts.find(x => 
+                !!x.resetToken && x.resetToken === token && 
                 new Date() < new Date(x.resetTokenExpires)
             );
 
@@ -277,7 +276,6 @@ export class FakeBackendInterceptor implements HttpInterceptor {
             if (!params.password) {
                 delete params.password;
             }
-
             // don't save confirm password
             delete params.confirmPassword;
 
@@ -313,7 +311,7 @@ export class FakeBackendInterceptor implements HttpInterceptor {
 
         function error(message: string) {
             return throwError(() => ({ error: { message } }))
-                .pipe(materialize(), delay(500), dematerialize()); // call materialize and dematerialize to delay errors
+                .pipe(materialize(), delay(500), dematerialize()); // call materialize and dematerialize
         }
 
         function unauthorized() {
@@ -364,7 +362,7 @@ export class FakeBackendInterceptor implements HttpInterceptor {
             const tokenPayload = {
                 exp: Math.round(new Date(Date.now() + 15*60*1000).getTime() / 1000),
                 id: account.id
-            }
+            };
             return `fake-jwt-token.${btoa(JSON.stringify(tokenPayload))}`;
         }
 
@@ -385,7 +383,7 @@ export class FakeBackendInterceptor implements HttpInterceptor {
     }
 }
 
-export let fakeBackendProvider = {
+export const fakeBackendProvider = {
     // use fake backend in place of Http service for backend-less development
     provide: HTTP_INTERCEPTORS,
     useClass: FakeBackendInterceptor,

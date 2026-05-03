@@ -16,7 +16,7 @@ enum TokenStatus {
 export class ResetPasswordComponent implements OnInit {
     TokenStatus = TokenStatus;
     tokenStatus = TokenStatus.Validating;
-    token!: string;
+    token?: string;
     form!: FormGroup;
     loading = false;
     submitted = false;
@@ -32,7 +32,7 @@ export class ResetPasswordComponent implements OnInit {
     ngOnInit() {
         this.token = this.route.snapshot.queryParams['token'];
 
-        // remove token from url to prevent leaking
+        // remove token from url to prevent it being leaked
         this.router.navigate([], { relativeTo: this.route, replaceUrl: true });
 
         this.form = this.formBuilder.group({
@@ -42,15 +42,15 @@ export class ResetPasswordComponent implements OnInit {
             validator: MustMatch('password', 'confirmPassword')
         });
 
-        if (!this.token) {
-            this.tokenStatus = TokenStatus.Invalid;
-        } else {
+        if (this.token) {
             this.accountService.validateResetToken(this.token)
                 .pipe(first())
                 .subscribe({
                     next: () => this.tokenStatus = TokenStatus.Valid,
                     error: () => this.tokenStatus = TokenStatus.Invalid
                 });
+        } else {
+            this.tokenStatus = TokenStatus.Invalid;
         }
     }
 
@@ -69,7 +69,7 @@ export class ResetPasswordComponent implements OnInit {
         }
 
         this.loading = true;
-        this.accountService.resetPassword(this.token, this.f.password.value, this.f.confirmPassword.value)
+        this.accountService.resetPassword(this.token!, this.f.password.value, this.f.confirmPassword.value)
             .pipe(first())
             .subscribe({
                 next: () => {

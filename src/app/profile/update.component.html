@@ -34,7 +34,7 @@
         <input type="text" formControlName="email" class="form-control" [ngClass]="{ 'is-invalid': submitted && f.email.errors }" />
         <div *ngIf="submitted && f.email.errors" class="invalid-feedback">
             <div *ngIf="f.email.errors.required">Email is required</div>
-            <div *ngIf="f.email.errors.email">Email must be a valid email address</div>
+            <div *ngIf="f.email.errors.email">Email is invalid</div>
         </div>
     </div>
     <h3 class="pt-3">Change Password</h3>
@@ -60,7 +60,7 @@
             <span *ngIf="submitting" class="spinner-border spinner-border-sm me-1"></span>
             Update
         </button>
-        <button type="button" (click)="onDelete()" [disabled]="deleting" class="btn btn-danger ms-2">
+        <button type="button" (click)="onDelete()" [disabled]="deleting" class="btn btn-danger ms-1">
             <span *ngIf="deleting" class="spinner-border spinner-border-sm me-1"></span>
             Delete
         </button>

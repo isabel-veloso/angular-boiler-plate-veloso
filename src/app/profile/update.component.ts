@@ -5,14 +5,11 @@ import { first } from 'rxjs/operators';
 
 import { AccountService, AlertService } from '@app/_services';
 import { MustMatch } from '@app/_helpers';
+import { Account } from '@app/_models';
 
 @Component({ templateUrl: 'update.component.html', standalone: false })
 export class UpdateComponent implements OnInit {
-
-    // 1. Just declare it here without assigning a value
-    account: any;
-
-    // account = this.accountService.accountValue;
+    account!: Account;
     form!: FormGroup;
     submitting = false;
     submitted = false;
@@ -24,17 +21,16 @@ export class UpdateComponent implements OnInit {
         private router: Router,
         private accountService: AccountService,
         private alertService: AlertService
-    ) {
-        // 2. This safely assigns the value once the service is ready
-        this.account = this.accountService.accountValue;
-    }
+    ) { }
 
     ngOnInit() {
+        this.account = this.accountService.accountValue!;
+
         this.form = this.formBuilder.group({
-            title: [this.account?.title, Validators.required],
-            firstName: [this.account?.firstName, Validators.required],
-            lastName: [this.account?.lastName, Validators.required],
-            email: [this.account?.email, [Validators.required, Validators.email]],
+            title: [this.account.title, Validators.required],
+            firstName: [this.account.firstName, Validators.required],
+            lastName: [this.account.lastName, Validators.required],
+            email: [this.account.email, [Validators.required, Validators.email]],
             password: ['', [Validators.minLength(6)]],
             confirmPassword: ['']
         }, {
@@ -57,7 +53,7 @@ export class UpdateComponent implements OnInit {
         }
 
         this.submitting = true;
-        this.accountService.update(this.account!.id, this.form.value)
+        this.accountService.update(this.account.id!, this.form.value)
             .pipe(first())
             .subscribe({
                 next: () => {
@@ -74,10 +70,10 @@ export class UpdateComponent implements OnInit {
     onDelete() {
         if (confirm('Are you sure?')) {
             this.deleting = true;
-            this.accountService.delete(this.account!.id)
+            this.accountService.delete(this.account.id!)
                 .pipe(first())
                 .subscribe(() => {
-                    this.alertService.success('Account deleted successfully');
+                    this.alertService.success('Account deleted successfully', { keepAfterRouteChange: true });
                 });
         }
     }

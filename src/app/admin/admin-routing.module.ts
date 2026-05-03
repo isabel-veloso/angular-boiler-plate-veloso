@@ -1,19 +1,19 @@
 import { NgModule } from '@angular/core';
 import { Routes, RouterModule } from '@angular/router';
 
+import { SubnavComponent } from './subnav.component';
 import { LayoutComponent } from './layout.component';
 import { OverviewComponent } from './overview.component';
-import { SubnavComponent } from './subnav.component';
 
 const accountsModule = () => import('./accounts/accounts.module').then(x => x.AccountsModule);
 
 const routes: Routes = [
+    { path: '', component: SubnavComponent, outlet: 'subnav' },
     {
         path: '', component: LayoutComponent,
         children: [
-            { path: '', component: SubnavComponent, outlet: 'subnav' },
-            { path: '', component: OverviewComponent },
-            { path: 'accounts', loadChildren: accountsModule }
+        { path: '', component: OverviewComponent },
+        { path: 'accounts', loadChildren: accountsModule }
         ]
     }
 ];

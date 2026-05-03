@@ -1,38 +1,37 @@
+/* To learn more about this file see: https://angular.io/config/tsconfig. */
 {
   "compileOnSave": false,
   "compilerOptions": {
     "baseUrl": "./",
-    "paths": {
-      "@app/*": ["src/app/*"],
-      "@environments/*": ["src/environments/*"]
-    },
-    "strict": false, 
+    "outDir": "./dist/out-tsc",
+    "allowSyntheticDefaultImports": true,
+    "forceConsistentCasingInFileNames": true,
+    "strict": true,
     "noImplicitOverride": true,
     "noPropertyAccessFromIndexSignature": false,
     "noImplicitReturns": true,
     "noFallthroughCasesInSwitch": true,
-    "skipLibCheck": true,
-    "isolatedModules": true,
+    "sourceMap": true,
+    "declaration": false,
+    "downlevelIteration": true,
     "experimentalDecorators": true,
+    "moduleResolution": "bundler",
     "importHelpers": true,
     "target": "ES2022",
-    "module": "ESNext",
-    "moduleResolution": "bundler",
-    "lib": ["ES2022", "dom"]
+    "module": "ES2022",
+    "lib": [
+      "ES2022",
+      "dom"
+    ],
+    "paths": {
+      "@app/*": ["src/app/*"],
+      "@environments/*": ["src/environments/*"]
+    }
   },
   "angularCompilerOptions": {
     "enableI18nLegacyMessageIdFormat": false,
-    "strictInjectionParameters": false,
-    "strictInputAccessModifiers": false,
-    "strictTemplates": false
-  },
-  "files": [],
-  "references": [
-    {
-      "path": "./tsconfig.app.json"
-    },
-    {
-      "path": "./tsconfig.spec.json"
-    }
-  ]
+    "strictInjectionParameters": true,
+    "strictInputAccessModifiers": true,
+    "strictTemplates": true
+  }
 }

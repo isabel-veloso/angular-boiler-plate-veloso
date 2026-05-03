@@ -59,7 +59,7 @@
         <div class="mb-3 form-check">
             <input type="checkbox" formControlName="acceptTerms" id="acceptTerms" class="form-check-input" [ngClass]="{ 'is-invalid': submitted && f.acceptTerms.errors }" />
             <label for="acceptTerms" class="form-check-label">Accept Terms & Conditions</label>
-            <div *ngIf="submitted && f.acceptTerms.errors" class="invalid-feedback">Accept Ts & Cs is required</div>
+            <div *ngIf="submitted && f.acceptTerms.errors" class="invalid-feedback">Accept Terms & Conditions is required</div>
         </div>
         <div class="mb-3">
             <button [disabled]="submitting" class="btn btn-primary">

@@ -1,4 +1,4 @@
-import { ChangeDetectorRef, Component, OnInit } from '@angular/core';
+import { ChangeDetectorRef, Component, OnInit } from '@angular/core'; //
 import { Router, ActivatedRoute } from '@angular/router';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { first } from 'rxjs/operators';
@@ -32,8 +32,8 @@ export class LoginComponent implements OnInit {
 
     onSubmit() {
         this.submitted = true;
-        this.cdr.detectChanges();
 
+        // reset alerts on submit
         this.alertService.clear();
 
         // stop here if form is invalid

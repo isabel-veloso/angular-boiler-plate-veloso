@@ -1,31 +1,33 @@
-import { Component, OnInit } from '@angular/core';
+import { ChangeDetectorRef, Component, OnDestroy, OnInit } from '@angular/core';
 import { Router, ActivatedRoute } from '@angular/router';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
-import { first } from 'rxjs/operators';
+import { finalize, first } from 'rxjs/operators';
 
 import { AccountService, AlertService } from '@app/_services';
 import { MustMatch } from '@app/_helpers';
 
 @Component({ templateUrl: 'add-edit.component.html', standalone: false })
-export class AddEditComponent implements OnInit {
+export class AddEditComponent implements OnInit, OnDestroy {
     form!: FormGroup;
-    id!: string;
-    isAddMode!: boolean;
+    id?: string;
+    title!: string;
     loading = false;
     submitting = false;
     submitted = false;
+
+    private loadTimeoutId?: number;
 
     constructor(
         private formBuilder: FormBuilder,
         private route: ActivatedRoute,
         private router: Router,
         private accountService: AccountService,
-        private alertService: AlertService
-    ) { }
+        private alertService: AlertService,
+        private cdr: ChangeDetectorRef
+    ) {}
 
     ngOnInit() {
         this.id = this.route.snapshot.params['id'];
-        this.isAddMode = !this.id;
 
         this.form = this.formBuilder.group({
             title: ['', Validators.required],
@@ -33,20 +35,56 @@ export class AddEditComponent implements OnInit {
             lastName: ['', Validators.required],
             email: ['', [Validators.required, Validators.email]],
             role: ['', Validators.required],
-            password: ['', [Validators.minLength(6), this.isAddMode ? Validators.required : Validators.nullValidator]],
-            confirmPassword: ['', this.isAddMode ? Validators.required : Validators.nullValidator]
+            // password only required in add mode
+            password: ['', [Validators.minLength(6), ...(!this.id ? [Validators.required] : [])]],
+            confirmPassword: ['']
         }, {
             validator: MustMatch('password', 'confirmPassword')
         });
 
-        if (!this.isAddMode) {
+        this.title = 'Create Account';
+        if (this.id) {
+            this.title = 'Edit Account';
             this.loading = true;
-            this.accountService.getById(this.id)
-                .pipe(first())
-                .subscribe(x => {
-                    this.form.patchValue(x);
+            this.cdr.detectChanges();
+
+            this.loadTimeoutId = window.setTimeout(() => {
+                if (this.loading) {
                     this.loading = false;
+                    this.alertService.error('Request timed out');
+                    this.cdr.detectChanges();
+                }
+            }, 10000);
+
+            this.accountService.getById(this.id)
+                .pipe(
+                    first(),
+                    finalize(() => {
+                        this.loading = false;
+                        if (this.loadTimeoutId) {
+                            window.clearTimeout(this.loadTimeoutId);
+                            this.loadTimeoutId = undefined;
+                        }
+                        this.cdr.detectChanges();
+                    })
+                )
+                .subscribe({
+                    next: x => {
+                        this.form.patchValue(x);
+                        this.cdr.detectChanges();
+                    },
+                    error: error => {
+                        this.alertService.error(error);
+                        this.cdr.detectChanges();
+                    }
                 });
+        }
+    }
+
+    ngOnDestroy() {
+        if (this.loadTimeoutId) {
+            window.clearTimeout(this.loadTimeoutId);
+            this.loadTimeoutId = undefined;
         }
     }
 
@@ -55,34 +93,40 @@ export class AddEditComponent implements OnInit {
 
     onSubmit() {
         this.submitted = true;
+        this.cdr.detectChanges();
 
-        // reset alerts on submit
         this.alertService.clear();
 
-        // stop here if form is invalid
         if (this.form.invalid) {
             return;
         }
 
         this.submitting = true;
-        this.saveAccount()
+        this.cdr.detectChanges();
+
+        // create or update account based on id param
+        let saveAccount;
+        let message: string;
+        if (this.id) {
+            saveAccount = () => this.accountService.update(this.id!, this.form.value);
+            message = 'Account updated';
+        } else {
+            saveAccount = () => this.accountService.create(this.form.value);
+            message = 'Account created';
+        }
+
+        saveAccount()
             .pipe(first())
             .subscribe({
                 next: () => {
-                    this.alertService.success('Account saved', { keepAfterRouteChange: true });
-                    this.router.navigate(['../../'], { relativeTo: this.route });
+                    this.alertService.success(message, { keepAfterRouteChange: true });
+                    this.router.navigateByUrl('/admin/accounts');
                 },
                 error: error => {
                     this.alertService.error(error);
                     this.submitting = false;
+                    this.cdr.detectChanges();
                 }
             });
-    }
-
-    private saveAccount() {
-        // create or update account based on id param
-        return this.isAddMode
-            ? this.accountService.create(this.form.value)
-            : this.accountService.update(this.id, this.form.value);
     }
 }

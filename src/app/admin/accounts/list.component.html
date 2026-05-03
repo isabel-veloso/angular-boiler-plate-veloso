@@ -1,20 +1,20 @@
 <h1>Accounts</h1>
-<p>All accounts from secure-api-auth-node.service.com are listed below:</p>
+<p>All accounts from secure (admin only) api end point:</p>
 <a routerLink="add" class="btn btn-sm btn-success mb-2">Create Account</a>
 <table class="table table-striped">
     <thead>
         <tr>
-            <th style="width: 30%">Name</th>
-            <th style="width: 30%">Email</th>
-            <th style="width: 15%">Role</th>
-            <th style="width: 25%"></th>
+            <th style="width:30%">Name</th>
+            <th style="width:30%">Email</th>
+            <th style="width:30%">Role</th>
+            <th style="width:10%"></th>
         </tr>
     </thead>
     <tbody>
         <tr *ngFor="let account of accounts">
-            <td>{{account.title}} {{account.firstName}} {{account.lastName}}</td>
-            <td>{{account.email}}</td>
-            <td>{{account.role}}</td>
+            <td class="align-middle">{{account.title}} {{account.firstName}} {{account.lastName}}</td>
+            <td class="align-middle">{{account.email}}</td>
+            <td class="align-middle">{{account.role}}</td>
             <td style="white-space: nowrap">
                 <a routerLink="edit/{{account.id}}" class="btn btn-sm btn-primary me-1">Edit</a>
                 <button (click)="deleteAccount(account.id)" class="btn btn-sm btn-danger btn-delete-account" [disabled]="account.isDeleting">
@@ -23,9 +23,14 @@
                 </button>
             </td>
         </tr>
-        <tr *ngIf="!accounts">
+        <tr *ngIf="loading">
             <td colspan="4" class="text-center">
                 <span class="spinner-border spinner-border-lg align-center"></span>
+            </td>
+        </tr>
+        <tr *ngIf="!loading && accounts.length === 0">
+            <td colspan="4" class="text-center text-muted">
+                No accounts found.
             </td>
         </tr>
     </tbody>
