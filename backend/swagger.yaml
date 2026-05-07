@@ -1,0 +1,160 @@
+openapi: 3.0.0
+info:
+  title: Node.js Sign-up and Verification API
+  description: Node.js + MySQL - API with email sign-up, verification, authentication and forgot password
+  version: 1.0.0
+
+servers:
+  - url: http://localhost:4000
+    description: Local development server
+
+components:
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
+      in: header
+      name: Authorization
+
+paths:
+  /accounts/authenticate:
+    post:
+      summary: Authenticate account credentials and return a JWT token and a cookie with a refresh token
+      operationId: authenticate
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                email:
+                  type: string
+                  example: isabel@example.com
+                password:
+                  type: string
+                  example: password123
+      responses:
+        "200":
+          description: OK
+
+  /accounts/refresh-token:
+    post:
+      summary: Use a refresh token to generate a new JWT token and a new refresh token
+      operationId: refreshToken
+      responses:
+        "200":
+          description: OK
+
+  /accounts/revoke-token:
+    post:
+      summary: Revoke a refresh token
+      operationId: revokeToken
+      security:
+        - bearerAuth: []
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                token:
+                  type: string
+      responses:
+        "200":
+          description: OK
+
+  /accounts/register:
+    post:
+      summary: Register a new user account and send a verification email
+      operationId: register
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                title:
+                  type: string
+                  example: Mr
+                firstName:
+                  type: string
+                  example: Isabel
+                lastName:
+                  type: string
+                  example: Veloso
+                email:
+                  type: string
+                  example: isabel@example.com
+                password:
+                  type: string
+                  example: password123
+                confirmPassword:
+                  type: string
+                  example: password123
+                acceptTerms:
+                  type: boolean
+                  example: true
+      responses:
+        "200":
+          description: OK
+
+  /accounts/verify-email:
+    post:
+      summary: Verify a new account with a verification token received by email after registration
+      operationId: verifyEmail
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                token:
+                  type: string
+      responses:
+        "200":
+          description: OK
+
+  /accounts/forgot-password:
+    post:
+      summary: Submit email address to reset the password on an account
+      operationId: forgotPassword
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                email:
+                  type: string
+                  example: isabel@example.com
+      responses:
+        "200":
+          description: OK
+
+  /accounts/validate-reset-token:
+    post:
+      summary: Validate the reset password token received by email
+      operationId: validateResetToken
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                token:
+                  type: string
+      responses:
+        "200":
+          description: OK
+
+  /accounts/reset-password:
+    post:
+      summary: Reset the password for an account
+      operationId: resetPassword
+      requestBody:
+        required: true
