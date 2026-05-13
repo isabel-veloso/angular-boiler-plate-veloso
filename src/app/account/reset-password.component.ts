@@ -1,4 +1,4 @@
-import { Component, OnInit, ChangeDetectorRef } from '@angular/core';
+import { Component, OnInit } from '@angular/core';
 import { Router, ActivatedRoute } from '@angular/router';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { first } from 'rxjs/operators';
@@ -26,8 +26,7 @@ export class ResetPasswordComponent implements OnInit {
         private route: ActivatedRoute,
         private router: Router,
         private accountService: AccountService,
-        private alertService: AlertService,
-        private cdr: ChangeDetectorRef
+        private alertService: AlertService
     ) { }
 
     ngOnInit() {
@@ -44,30 +43,34 @@ export class ResetPasswordComponent implements OnInit {
         });
 
         if (this.token) {
-            this.accountService.validateResetToken(this.token)
-                .pipe(first())
-                .subscribe({
-                    next: () => {
-                        this.tokenStatus = TokenStatus.Valid;
-                        this.cdr.detectChanges();
-                    },
-                    error: () => {
-                        this.tokenStatus = TokenStatus.Invalid;
-                        this.cdr.detectChanges();
-                    }
-                });
+            // small delay to ensure app initializer completes first
+            setTimeout(() => {
+                this.accountService.validateResetToken(this.token!)
+                    .pipe(first())
+                    .subscribe({
+                        next: () => {
+                            this.tokenStatus = TokenStatus.Valid;
+                        },
+                        error: () => {
+                            this.tokenStatus = TokenStatus.Invalid;
+                        }
+                    });
+            }, 500);
         } else {
             this.tokenStatus = TokenStatus.Invalid;
-            this.cdr.detectChanges();
         }
     }
 
+    // convenience getter for easy access to form fields
     get f() { return this.form.controls; }
 
     onSubmit() {
         this.submitted = true;
+
+        // reset alerts on submit
         this.alertService.clear();
 
+        // stop here if form is invalid
         if (this.form.invalid) {
             return;
         }
