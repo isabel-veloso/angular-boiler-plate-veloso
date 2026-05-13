@@ -43,19 +43,12 @@ export class ResetPasswordComponent implements OnInit {
         });
 
         if (this.token) {
-            // small delay to ensure app initializer completes first
-            setTimeout(() => {
-                this.accountService.validateResetToken(this.token!)
-                    .pipe(first())
-                    .subscribe({
-                        next: () => {
-                            this.tokenStatus = TokenStatus.Valid;
-                        },
-                        error: () => {
-                            this.tokenStatus = TokenStatus.Invalid;
-                        }
-                    });
-            }, 500);
+            this.accountService.validateResetToken(this.token)
+                .pipe(first())
+                .subscribe({
+                    next: () => this.tokenStatus = TokenStatus.Valid,
+                    error: () => this.tokenStatus = TokenStatus.Invalid
+                });
         } else {
             this.tokenStatus = TokenStatus.Invalid;
         }
