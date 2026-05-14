@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, ChangeDetectorRef } from '@angular/core';
 import { Router, ActivatedRoute } from '@angular/router';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { first } from 'rxjs/operators';
@@ -26,14 +26,13 @@ export class ResetPasswordComponent implements OnInit {
         private route: ActivatedRoute,
         private router: Router,
         private accountService: AccountService,
-        private alertService: AlertService
+        private alertService: AlertService,
+        private cdr: ChangeDetectorRef
     ) { }
 
     ngOnInit() {
-        this.token = this.route.snapshot.queryParams['token'];
-
-        // remove token from url to prevent it being leaked
-        this.router.navigate([], { relativeTo: this.route, replaceUrl: true });
+        const urlParams = new URLSearchParams(window.location.search);
+        this.token = urlParams.get('token') || undefined;
 
         this.form = this.formBuilder.group({
             password: ['', [Validators.required, Validators.minLength(6)]],
@@ -46,30 +45,39 @@ export class ResetPasswordComponent implements OnInit {
             this.accountService.validateResetToken(this.token)
                 .pipe(first())
                 .subscribe({
-                    next: () => this.tokenStatus = TokenStatus.Valid,
-                    error: () => this.tokenStatus = TokenStatus.Invalid
+                    next: () => {
+                        this.tokenStatus = TokenStatus.Valid;
+                        this.cdr.detectChanges(); // force UI update
+                    },
+                    error: () => {
+                        this.tokenStatus = TokenStatus.Invalid;
+                        this.cdr.detectChanges(); // force UI update
+                    }
                 });
         } else {
             this.tokenStatus = TokenStatus.Invalid;
+            this.cdr.detectChanges();
         }
+
+        setTimeout(() => {
+            this.router.navigate([], {
+                relativeTo: this.route,
+                replaceUrl: true,
+                queryParams: {}
+            });
+        }, 1000);
     }
 
-    // convenience getter for easy access to form fields
     get f() { return this.form.controls; }
 
     onSubmit() {
         this.submitted = true;
-
-        // reset alerts on submit
         this.alertService.clear();
 
-        // stop here if form is invalid
-        if (this.form.invalid) {
-            return;
-        }
+        if (this.form.invalid) return;
 
         this.loading = true;
-        this.accountService.resetPassword(this.token!, this.f.password.value, this.f.confirmPassword.value)
+        this.accountService.resetPassword(this.token!, this.f['password'].value, this.f['confirmPassword'].value)
             .pipe(first())
             .subscribe({
                 next: () => {

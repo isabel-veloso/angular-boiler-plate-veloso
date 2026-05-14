@@ -1,4 +1,4 @@
 export const environment = {
-  production: true,
-  apiUrl: 'https://your-backend-url.onrender.com'
+    production: false,        // ← change to false
+    apiUrl: 'http://localhost:4200'  // ← point to itself so fake backend intercepts
 };
